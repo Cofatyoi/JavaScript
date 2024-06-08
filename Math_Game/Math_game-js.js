@@ -1,5 +1,6 @@
-const fs = require('fs')
-const prompt = require('prompt-sync')();
+import {getLogMessages} from './game.type.js';
+import fs from 'fs-extra';
+import prompt from 'prompt-sync';
 
 class Loader {
     constructor(filename, defaultJson = {}) {
@@ -21,6 +22,7 @@ class Loader {
         return JSON.parse(data);
     }
 }
+
 
 const js = new Loader("data.json", {
     "Played": 0,
@@ -45,6 +47,7 @@ function math_end(d) {
 
     }
     data["Played"] += 1;
+    js.dump(data);
 }
 
 function math_add(min, max) {
@@ -52,7 +55,7 @@ function math_add(min, max) {
     const b = Math.floor(Math.random() * (max - min)) + min;
     const math_answer = a + b;
     console.log(`${a} + ${b}`)
-    const answer = parseInt(prompt("Write the correct answer: "))
+    const answer = parseInt(prompt({ sigint: true })("Write the correct answer: "))
     math_end(answer===math_answer)
 }
 
@@ -61,7 +64,7 @@ function math_sub(min, max) {
     const a = (Math.random() * (max - (b + 1)) + (b + 1)) ^ 0
     const math_answer = a - b;
     console.log(`${a} - ${b}`)
-    const answer = parseInt(prompt("Write the correct answer: "))
+    const answer = parseInt(prompt({ sigint: true })("Write the correct answer: "))
     math_end(answer===math_answer)
 }
 
@@ -70,7 +73,7 @@ function math_multi(min, max) {
     const b = Math.floor(Math.random() * (max - min)) + min;
     const math_answer = a * b;
     console.log(`${a} * ${b}`)
-    const answer = parseInt(prompt("Write the correct answer: "))
+    const answer = parseInt(prompt({ sigint: true })("Write the correct answer: "))
     math_end(answer===math_answer)
 }
 
@@ -79,7 +82,7 @@ function math_div(min, max) {
     const a = (Math.random() * (max - (b + 1)) + (b + 1)) ^ 0
     const math_answer = a / b;
     console.log(`${a} / ${b}`)
-    const answer = parseInt(prompt("Write the correct answer: "))
+    const answer = parseInt(prompt({ sigint: true })("Write the correct answer: "))
     math_end(answer===math_answer)
 }
 
@@ -104,19 +107,14 @@ function math(min, max, operation) {
 }
 
 while (true) {
-    if (data["Played"] > 0) {
-        percent = Math.round((data["Win"] / data["Played"]) * 100);
-    } else {
-        percent = 0;
-    }
-    const select = prompt("Choice: ").toLowerCase();
+    const select = prompt({ sigint: true })("Choice: ").toLowerCase();
     if (select === "g") {
         console.clear();
         console.log("Levels: Easy(1-10), Medium(10-20), Hard(20-50), Insane(50-100)");
         console.log("Operation: Add(+), Sub(-), Multi(*), Div(/)");
 
-        const question = prompt("Choose Level: ").toLowerCase();
-        const question_operation = prompt("Choose Operation: ");
+        const question = prompt({ sigint: true })("Choose Level: ").toLowerCase();
+        const question_operation = prompt({ sigint: true })("Choose Operation: ");
 
         check_lvl(question, question_operation);
 
@@ -140,30 +138,23 @@ while (true) {
         }
 
     } else if (select === "help") {
+        const logs = getLogMessages(data);
         console.clear();
-        console.log("Commands: ");
-        console.log(" ⁍• G - Start Game ");
-        console.log(" ⁍• Help - View this text about commands ");
-        console.log(" ⁍• P - Profile ");
-        console.log(" ⁍• Name - change nickname ");
-        console.log(" ⁍• R - View right answer. Cost: 50 coins ");
-        console.log(" ⁍• E - Exit and save all ");
+        console.log(logs.HELP)
+
     } else if (select === "p") {
+        const logs = getLogMessages(data);
         console.clear();
-        console.log("Your Profile");
-        console.log(` ⁍• Nickname: ${data['Nickname']}`);
-        console.log(` ⁍• Played Games: ${data['Played']}`);
-        console.log(` ⁍• Coins: ${data['Money']}`);
-        console.log(` ⁍• Wins: ${data['Win']}`);
-        console.log(` ⁍• Lose: ${data['Lose']}`);
-        console.log(` ⁍• Winning percentage: ${percent}%`);
+        console.log(logs.PROFILE)
 
     } else if (select === "name") {
+
         console.clear();
-        nickname = prompt("Change your nickname: ");
-        data["Nickname"] = nickname;
+        data["Nickname"] = prompt({sigint: true})("Change your nickname: ");
         js.dump(data)
+
     } else if (select === "r") {
+
         console.clear();
         if (data["Money"] <= 50) {
             console.log("You don`t have 50 coins for buy it")
@@ -171,9 +162,11 @@ while (true) {
             console.log(`Right answer: ${math_answer}`);
             data["Money"] -= 50;
         }
+
     } else if (select === "e") {
-        js.dump(data)
+        js.dump(data);
         break
+
     } else {
         if (select === "") {
             console.clear();
