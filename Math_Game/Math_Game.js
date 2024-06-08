@@ -1,7 +1,7 @@
 const fs = require('fs')
 const prompt = require('prompt-sync')();
 
-class JS {
+class Loader {
     constructor(filename, defaultJson = {}) {
         this.filename = filename;
         this.defaultJson = defaultJson;
@@ -22,7 +22,7 @@ class JS {
     }
 }
 
-const js = new JS("settings.json", {
+const js = new Loader("data.json", {
     "Played": 0,
     "Win": 0,
     "Lose": 0,
@@ -57,13 +57,8 @@ function math_add(min, max) {
 }
 
 function math_sub(min, max) {
-    while (true) {
-        const a = Math.floor(Math.random() * (max - min)) + min;
-        const b = Math.floor(Math.random() * (max - min)) + min;
-        if (a > b) {
-            break
-        }
-    }
+    const b = (Math.random() * (max - min) + min) ^ 0
+    const a = (Math.random() * (max - (b + 1)) + (b + 1)) ^ 0
     const math_answer = a - b;
     console.log(`${a} - ${b}`)
     const answer = parseInt(prompt("Write the correct answer: "))
@@ -80,13 +75,8 @@ function math_multi(min, max) {
 }
 
 function math_div(min, max) {
-    while (true) {
-        const a = Math.floor(Math.random() * (max - min)) + min;
-        const b = Math.floor(Math.random() * (max - min)) + min;
-        if (a > b) {
-            break
-        }
-    }
+    const b = (Math.random() * (max - min) + min) ^ 0
+    const a = (Math.random() * (max - (b + 1)) + (b + 1)) ^ 0
     const math_answer = a / b;
     console.log(`${a} / ${b}`)
     const answer = parseInt(prompt("Write the correct answer: "))
@@ -94,17 +84,22 @@ function math_div(min, max) {
 }
 
 
-function math(min, max, question_math) {
-    if (question_math === "+") {
-        math_add(min, max);
-    } else if (question_math === "-") {
-        math_sub(min, max);
-    } else if (question_math === "*") {
-        math_multi(min, max);
-    } else if (question_math === "/") {
-        math_div(min, max);
-    } else {
-        console.log("Invalid function or operation!")
+function math(min, max, operation) {
+    switch (operation) {
+        case '+':
+            math_add(min, max);
+            break;
+        case '-':
+            math_sub(min, max);
+            break;
+        case '*':
+            math_multi(min, max);
+            break;
+        case '/':
+            math_div(min, max);
+            break;
+        default:
+            console.log("Invalid function or operation!");
     }
 }
 
@@ -121,19 +116,29 @@ while (true) {
         console.log("Operation: Add(+), Sub(-), Multi(*), Div(/)");
 
         const question = prompt("Choose Level: ").toLowerCase();
-        const question_math = prompt("Choose Operation: ");
+        const question_operation = prompt("Choose Operation: ");
 
-        if (question === "easy") {
-            math(1, 10, question_math);
-        } else if (question === "medium") {
-            math(10, 20, question_math);
-        } else if (question === "hard") {
-            math(20, 50, question_math);
-        } else if (question === "insane") {
-            math(50, 100, question_math);
-        } else {
-            console.log("Wrong!");
+        check_lvl(question, question_operation);
+
+        function check_lvl(question, operation) {
+            switch (question) {
+                case "easy":
+                    math(1, 10, operation);
+                    break;
+                case "medium":
+                    math(10, 20, operation);
+                    break;
+                case "hard":
+                    math(20, 50, operation);
+                    break;
+                case "insane":
+                    math(50, 100, operation);
+                    break;
+                default:
+                    console.log("Invalid operation!");
+            }
         }
+
     } else if (select === "help") {
         console.clear();
         console.log("Commands: ");
